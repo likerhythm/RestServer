@@ -1,22 +1,32 @@
 async function getpost() {
-	
+	const res = await axios.get('/getpost');
+	const postings = res.data;
+	const title = document.createElement('h3');
+	const writings = document.createElement('h4');
+	const posts = document.getElementById('posts');
+	Object.keys(postings).map(function(key) {
+		title.textContent = postings[key].title;
+		writings.textContent = postings[key].writings;
+		posts.appendChild(title);
+		posts.appendChild(writings);
+	})
 }
 
 window.onload = getpost;
-document.getElementById('title').addEventListener('submit', async (e) => {
+document.getElementById('post').addEventListener('submit', async (e) => {
 	e.preventDefault();
 	const title = e.target.title.value;
 	const writings = e.target.writings.value;
-	if(!title){
-		alert('제목을 입력하세요');
-	} else if (!writings){
+	if(!title || !writings){
 		alert('내용을 입력하세요');
-	}
-	try {
+	} else{
+		try {
 		await axios.post('/posting', { title, writings });
 		getpost();
-	} catch (err) {
-		console.error(err);
+		} catch (err) {
+			console.error(err);
+		}
+		e.target.title.value='';
+		e.target.writings.value='';
 	}
-	e.target.title.value='';
 })

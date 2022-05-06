@@ -19,10 +19,13 @@ http.createServer(async (req, res) => {
       } else if (req.url === '/users') {
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
         return res.end(JSON.stringify(users));
-      } else if (req.url === '/posting'){
-		const data = await fs.readFile(path.join(__dirname, 'posting.html'));
+      } else if (req.url === '/post'){
+		const data = await fs.readFile(path.join(__dirname, 'post.html'));
 		res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
 		return res.end(data);
+	  } else if (req.url === '/getpost') {
+		res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+		return res.end(JSON.stringify(posts));
 	  }
       // /도 /about도 /users도 아니면
       try {
@@ -55,10 +58,9 @@ http.createServer(async (req, res) => {
 			  body += data;
 		  })
 		  return req.on('end', () => {
-			  console.log(body);
 			  const { title, writings } = JSON.parse(body);
 			  const id = Date.now();
-			  posts[id] = { title: writings};
+			  posts[id] = { title: title, writings: writings};
 			  res.writeHead(201, { 'Content-Type': 'text/plain; charset=utf-8' });
 			  res.end('posting ok');
 		  })
