@@ -1,11 +1,28 @@
 const http = require('http');
 const fs = require('fs').promises;
 const path = require('path');
+const cluster = require('cluster');
+const numCPUs = require('os').cpus().length;
 
 const users = {}; // 데이터 저장용
 const posts = {};
 
-http.createServer(async (req, res) => {
+if(cluster.isMaster){
+	console.log('cpu개수:', numCPUs);
+	console.log('마스터 프로세스 아이디:', process.pid);
+	for(let i=0; i<numCPUs; i+=1){
+		cluster.fork();
+	}
+	cluster.on('exit', (worker, code, signal)=>{
+		console.log(`${worker.process.pid}번 워커가 종료되었습니다.`);
+		console.log('code ', code, 'signal ', signal);
+		cluster.fork();
+	});
+} else {
+	http.createServer(async (req, res) => {
+		setTimeout(()=>{
+			process.exit(1);
+		}, 1000);
   try {
     if (req.method === 'GET') {
       if (req.url === '/') {
@@ -98,3 +115,7 @@ http.createServer(async (req, res) => {
   .listen(8082, () => {
     console.log('8082번 포트에서 서버 대기 중입니다');
   });
+	
+	console.log(`${process.pid}번 워커 실행`);
+}
+

@@ -3,12 +3,15 @@ async function getpost() {
 	const postings = res.data;
 	const title = document.createElement('h3');
 	const writings = document.createElement('h4');
+	const div = document.createElement('div');
 	const posts = document.getElementById('posts');
 	Object.keys(postings).map(function(key) {
 		title.textContent = postings[key].title;
 		writings.textContent = postings[key].writings;
-		posts.appendChild(title);
-		posts.appendChild(writings);
+		div.appendChild(title);
+		div.appendChild(writings);
+		div.id = key;
+		posts.appendChild(div);
 	})
 }
 
