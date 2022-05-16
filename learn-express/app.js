@@ -1,9 +1,33 @@
 const express = require('express');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const dotenv = require('dotenv');
 const path = require('path');
 
+dotenv.config();
 const app = express();
-
+// app.set을 하면 app.js 어디서든지 app.get으로 port를 가져올 수 있음
+// 전역변수와 비슷한 느낌
 app.set('port', process.env.PORT||3000);
+
+
+app.use(morgan('dev'));
+// 절대경로 사용
+app.use('/', express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false}));
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(session({
+	resave: false,
+	saveUninitialized: false,
+	secret: process.env.COOKIE_SECRET,
+	cookie: {
+		httpOnly: true,
+		secure: false,
+	},
+	naem: 'session-cookie',
+}));
 
 app.use((req, res, next)=>{
 	console.log('모든 요청에 다 실행됩니다.');
