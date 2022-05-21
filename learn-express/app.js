@@ -12,7 +12,7 @@ const app = express();
 app.set('port', process.env.PORT||3000);
 
 
-app.use(morgan('dev'));
+app.use(morgan('combined'));
 // 절대경로 사용
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -26,17 +26,57 @@ app.use(session({
 		httpOnly: true,
 		secure: false,
 	},
-	naem: 'session-cookie',
+	name: 'session-cookie',
 }));
+
+const multer = require('multer');
+const fs = require('fs');
+
+try {
+	fs.readdirSync('uploads');
+} catch (error) {
+	console.error('uploads 폴더가 없어서 uploads 폴더를 생성합니다.');
+	fs.mkdirSync('uploads');
+}
+
+const uploads = multer({
+	storage: multer.diskStorage({
+		destination(req, file, done) {
+			done(null, 'uploads/');
+		},
+		filename(req, file, done) {
+			const ext = path.extname(file.originalname);
+			done(null, path.basename(file.originalname, ext) + Date.now(), + ext);
+		},
+	}),
+	limits: { fileSize: 5 * 1024 * 1024 },
+});
+app.get('/upload', (req, res) => {
+	res.sendFile(path.join(__dirname, 'multipart.html'));
+});
+app.post('/upload',
+	uploads.fields([{ name: 'image1'}, { name: 'image2' }]),
+	(req, res) => {
+		console.log(req.file, req.body);
+		res.send('ok');
+	},
+);
 
 app.use((req, res, next)=>{
 	console.log('모든 요청에 다 실행됩니다.');
+	if(req.session.num === undefined) {
+		req.session.num = 1;
+	} else {
+		req.session.num += 1;
+	}
+	console.log('서버에', req.session.num, '번 접속 중');
 	next();
 });
 app.get('/', (req, res, next)=>{
 	console.log('GET / 요청에서만 실행됩니다.');
 	next();
 }, (req, res)=>{
+	console.log('ERROR');
 	throw new Error('에러는 에러 처리 미들웨어로 갑니다.');
 });
 
