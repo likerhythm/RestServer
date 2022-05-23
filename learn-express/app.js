@@ -4,12 +4,21 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
+const nunjucks = require('nunjucks');
 
 dotenv.config();
 const app = express();
 // app.set을 하면 app.js 어디서든지 app.get으로 port를 가져올 수 있음
 // 전역변수와 비슷한 느낌
 app.set('port', process.env.PORT||3000);
+// html을 njk로 바꾸면 해당 파일이 넌적스 파일임을 명시할 수 있고 njk 확장자 사용가능.
+app.set('view engine', 'html');
+
+nunjucks.configure('views', {
+	express: app,
+	// html 파일이 변경될 때 템플릿 엔진 다시 렌더링
+	watch: true,
+});
 
 
 app.use(morgan('combined'));
