@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
 const nunjucks = require('nunjucks');
-
+// 
 // require('./models')는 require('./models/index.js')와 같음
 // 시퀄라이즈 연결 객체(db.sequelize) 가져오기
 const { sequelize } = require('./models');
@@ -17,7 +17,7 @@ nunjucks.configure('views', {
   watch: true,
 });
 
-// 서버 실행 시 MySQL과 연동되도록 설정
+// 서버 실행 시 노드와 MySQL 연동되도록 설정
 // force: true이면 서버 실행 시마다 테이블 재생성
 // 테이블 잘못 만든 경우에 사용
 sequelize.sync({ force: false })
